@@ -8,7 +8,8 @@ if __name__=='__main__':
             'Introduction':Intro(),
             'Game':Game()
         }
-    app=Controls(525,660,60)
+    sc.key.set_repeat(1,28)
+    app=Controls(503,649,60)
     app.setup(states,'Introduction')
     app.main_loop()
     sc.quit()
