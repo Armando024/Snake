@@ -6,29 +6,17 @@ from game_map import Map
 
 class Game:
     def __init__(self):
+        sc.mixer.pre_init(44100, 16, 2, 4096)
         sc.init()
+        self.font=sc.font.SysFont(None,28)
+        self.text=self.font.render("Score:",True,(0,0,0))
         States.__init__(self)
         self.next='Introduction'    
-        #creating head images
-        self.head=sc.image.load('head.png')
-        self.head=sc.transform.scale(self.head,(20,20))
-        self.head0=sc.transform.rotate(self.head,0)
-        self.head1=sc.transform.rotate(self.head,270)
-        self.head2=sc.transform.rotate(self.head,90)
-        self.head3=sc.transform.rotate(self.head,180)
-        #creating body images
-        self.body=sc.image.load('body.png')
-        self.body=sc.transform.scale(self.body,(20,20))
-        self.body0=sc.transform.rotate(self.body,0) 
-        self.body1=sc.transform.rotate(self.body,90)
-        self.body2=sc.transform.rotate(self.body,180)
-        self.body3=sc.transform.rotate(self.body,270)        
+        self.score=0;        
         #creating map
         self.map=Map()
         self.historyX=[]
         self.historyY=[]
-        #self.historyX.append(25)
-        #self.historyY.append(25)
         self.TailSize=0
         self.x=1
         self.y=1 
@@ -42,6 +30,8 @@ class Game:
         self.fruitX=random.randint(1,22)
         self.fruitY=random.randint(1,29)
         self.count=0
+        #adding sound
+        self.sound=sc.mixer.Sound("apple1.wav")
 
     def get_event(self,event):
         if event.type==sc.KEYDOWN:
@@ -71,15 +61,14 @@ class Game:
         return
 
     def update(self,screen,dt):
-
-        if(self.up):
-            self.head=self.head0
-        elif(self.down):
-            self.head=self.head3
-        elif(self.left):
-            self.head=self.head2
-        elif(self.right):
-            self.head=self.head1 # sc.transform.rotate(self.head,90)
+        #wall boundaries
+        if(self.x>22 or self.y>29 or self.x==0 or self.y==0):
+            self.done=True
+        #head not touching body
+        for i in range(0,self.TailSize):
+            print(self.historyX[i]," ",self.x," ",self.historyY[i]," ",self.y)
+            if (self.historyX[i]==self.x and self.historyY[i]==self.y):
+                self.done=True
         
         self.draw(screen)
     def startup(self):
@@ -88,7 +77,6 @@ class Game:
         screen.fill((0,0,0))
         #sc.draw.rect(screen,(128,128,128),sc.Rect(self.x-5,self.y-5,20,20) )  
         #DRAWING MAP
-        #time.sleep(0.2)
         sumx=0
         sumy=0
         for y in range(0,self.map.get_H()):
@@ -99,35 +87,57 @@ class Game:
                     sc.draw.rect(screen,(1,166,17),sc.Rect(x+sumx,y+sumy,20,20))
                 if (x==self.fruitX and y==self.fruitY):
                     screen.blit(self.fruit,(x+sumx,y+sumy))
+                   # sc.draw.rect(screen,(128,128,128),sc.Rect(x+sumx,y+sumy,20,20) )
                     #print(x+sumx)
                     #print(y+sumy)    
                 if (x==self.x and self.y==y):
-                    screen.blit(self.head,(x+sumx,y+sumy))     
+                   # screen.blit(self.head,(x+sumx,y+sumy))   
+                    sc.draw.rect(screen,(255,255,255),sc.Rect(x+sumx,y+sumy,20,20) )
+                   # print("head x=",(x+sumx)," y=" ,(y+sumy),"\n")  
                     if (len(self.historyX)>self.TailSize and self.count==10 ):
-                        self.historyX.insert(0,(x+sumx))
-                        self.historyY.insert(0,(y+sumy))
-                        for z in self.historyX:
-                            print(z,end=" ")
-                        print("DONE\n") 
+#                        print("x+sumx=",x+sumx," x=",x," sumx=" ,sumx)
+ #                       print("x=(x+sumx)%20",(x+sumx)%20)
+  #                      print("y+sumy=",y+sumy," y=",y," sumy=",sumy)        
+                        self.historyX.insert(0,x)
+                        self.historyY.insert(0,y)
+                      #  for z in self.historyX:
+                    #        print(z,end=" ")
+                     #   print("DONE\n") 
                         self.historyX.pop() 
                         self.historyY.pop() 
                     elif (self.count==10):
-                         self.historyX.insert(0,x+sumx)
-                         self.historyY.insert(0,y+sumy)
- 
+                         self.historyX.insert(0,x)
+                         self.historyY.insert(0,y)
+                
                 sumx+=20
             sumx=0
             sumy+=20
         
-        for i in range(0 ,self.TailSize):
-            sc.draw.rect(screen,(128,128,128),sc.Rect(self.historyX[i],self.historyY[i],20,20) )        
+        for i in range(0,self.TailSize):
+            sc.draw.rect(screen,(255,255,255),sc.Rect(self.historyX[i]+20*(self.historyX[i] ),self.historyY[i]+20*(self.historyY[i]),20,20))
              
         if (self.fruitX==self.x and self.fruitY==self.y):
             self.fruitX=random.randint(1,22)
             self.fruitY=random.randint(1,29)
+            inbody=True
+            count=0;
+            print("************************")
+            #making sure fruit does not land in body            
+            while(inbody and self.TailSize!=0):
+                for z1 in  range(0,self.TailSize):
+                    #print(self.historyX[z1]," ",self.historyY[z1]%20," ",self.fruitX," ",self.fruitY)
+                    if (self.historyX[z1]==self.fruitX and self.historyY[z1]==self.fruitY):
+                        self.fruitX=random.randint(1,22)
+                        self.fruitY=random.randint(1,29)
+                        inbody=True
+                        break;
+                    inbody=False
+            
             #print("****generating new rand int ******")
             #print(self.fruitY)
             #print(self.fruitX)
+            self.score+=10
+            self.sound.play()
             self.TailSize+=1
         
         
@@ -147,11 +157,26 @@ class Game:
             self.count=0
         else:
             self.count+=1         
-        
+        #printing score
+        sc.draw.rect(screen,(255,255,255),sc.Rect(0,649,503,30 ) )
+        screen.blit(self.text,(5,651)  )  
+        screen.blit(self.font.render( ((str)(self.score)),True,(0,0,0)),(113,651 ) )   
         return
 
 
     def cleanup(self):
+        self.historyX.clear()
+        self.historyY.clear()
+        self.TailSize=0
+        self.x=1
+        self.y=1 
+        self.up=False
+        self.down=False
+        self.left=False
+        self.right=True
+        self.fruitX=random.randint(1,22)
+        self.fruitY=random.randint(1,29)
+        self.count=0
         return
     
     
