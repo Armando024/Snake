@@ -15,11 +15,11 @@ class Game:
         self.score=0;        
         #creating map
         self.map=Map()
-        self.historyX=[]
-        self.historyY=[]
-        self.TailSize=0
-        self.x=1
-        self.y=1 
+        self.historyX=[12,12]
+        self.historyY=[11,10]
+        self.TailSize=2
+        self.x=12
+        self.y=12 
         self.up=False
         self.down=False
         self.left=False
@@ -66,12 +66,18 @@ class Game:
             self.done=True
         #head not touching body
         for i in range(0,self.TailSize):
-            print(self.historyX[i]," ",self.x," ",self.historyY[i]," ",self.y)
+           # print(self.historyX[i]," ",self.x," ",self.historyY[i]," ",self.y)
             if (self.historyX[i]==self.x and self.historyY[i]==self.y):
                 self.done=True
         
         self.draw(screen)
     def startup(self):
+        self.historyX=[12,12]
+        self.historyY=[11,10]
+        self.TailSize=2
+        self.x=12
+        self.y=12 
+        
         return
     def draw(self,screen):
         screen.fill((0,0,0))
@@ -121,7 +127,7 @@ class Game:
             self.fruitY=random.randint(1,29)
             inbody=True
             count=0;
-            print("************************")
+#            print("************************")
             #making sure fruit does not land in body            
             while(inbody and self.TailSize!=0):
                 for z1 in  range(0,self.TailSize):
@@ -177,6 +183,7 @@ class Game:
         self.fruitX=random.randint(1,22)
         self.fruitY=random.randint(1,29)
         self.count=0
+        self.score=0 
         return
     
     

@@ -26,16 +26,16 @@ class Intro:
 
     def draw(self,screen):
         screen.fill((1,166,17))
-        sc.draw.rect(screen,(0,123,12),sc.Rect(0,0,50,660))
-        sc.draw.rect(screen,(0,123,12),sc.Rect(0,0,525,50))    
-        sc.draw.rect(screen,(0,123,12),sc.Rect(475,0,50,660)) 
-        sc.draw.rect(screen,(0,123,12),sc.Rect(0,610,660,50))
+        sc.draw.rect(screen,(0,123,12),sc.Rect(0,0,50,679))
+        sc.draw.rect(screen,(0,123,12),sc.Rect(0,0,503,50))    
+        sc.draw.rect(screen,(0,123,12),sc.Rect(453,0,50,679)) 
+        sc.draw.rect(screen,(0,123,12),sc.Rect(0,629,679,50))
 
-        screen.blit(self.txta,(130,200))
-        screen.blit(self.txtb,(130,240))
-        screen.blit(self.txtc,(130,280))
-        screen.blit(self.txtd,(130,320))
-        screen.blit(self.txte,(130,360))
+        screen.blit(self.txta,(110,200))
+        screen.blit(self.txtb,(110,240))
+        screen.blit(self.txtc,(110,280))
+        screen.blit(self.txtd,(110,320))
+        screen.blit(self.txte,(110,360))
         return
 
 
