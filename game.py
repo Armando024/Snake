@@ -106,6 +106,18 @@ class Game:
             data.append(0)
         #distance between head and apple
        # data.append(round(math.sqrt( math.pow(self.fruitX-self.x,2)  + math.pow((self.fruitY-self.y),2)),3) )  
+        #orientation of apple to head, since using distance did not work so well
+        #e.g 
+        #       |    a
+        #       |  /
+        #       |/
+        #       O   --head
+        #       o   --body
+        #       o
+        #       o
+        #a is apple
+        data.append(round(math.atan2(self.fruitY-self.y,self.fruitX-self.x),3) )
+        
         #direction pick 0=left 1=right 2=up 3=down
         if self.left:
             data.append(0)
@@ -116,7 +128,7 @@ class Game:
         elif self.down:
             data.append(3)
 #        print("[left,right,up,down]")
-       # print("left="+str(data[0])+" right="+str(data[1])+" up="+str(data[2])+" down="+str(data[3])+" d="+str(data[4])+" chosen="+str(data[5])) 
+        print("left="+str(data[0])+" right="+str(data[1])+" up="+str(data[2])+" down="+str(data[3])+" orientation="+str(data[4])+" chosen="+str(data[5])) 
         data1=[]
         if self.player:
             data1.append(data)

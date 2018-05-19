@@ -11,7 +11,7 @@ def load_data(path="../train_data/test0.csv"):#sepearting inputs and expected ou
     return inputs,outs
 
 def train_input(features,labels,batch_size): #turns training data into tensor objects to train my model
-    print(features)
+   # print(features)
     dataset = tf.data.Dataset.from_tensor_slices((dict(features), labels))
     
     dataset = dataset.shuffle(1000).repeat().batch(batch_size)
@@ -38,9 +38,9 @@ def main(argv):
     #features
     features=[]
     for key in inputs.keys():
-        print(key)
+        #print(key)
         features.append(tf.feature_column.numeric_column(key=key))
-    print(features)  
+   # print(features)  
     
     model=tf.estimator.DNNClassifier(feature_columns=features,model_dir="model1",hidden_units=[25],n_classes=4)
     
