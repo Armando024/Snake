@@ -125,12 +125,13 @@ class Game:
             data.append(1)
         elif self.up:
             data.append(2)
-        elif self.down:
+        else:
             data.append(3)
 #        print("[left,right,up,down]")
         print("left="+str(data[0])+" right="+str(data[1])+" up="+str(data[2])+" down="+str(data[3])+" orientation="+str(data[4])+" chosen="+str(data[5])) 
-        data1=[]
+      
         if self.player:
+            data1=[]
             data1.append(data)
             file_path=Path("train_data/test0.csv")
             if file_path.exists():
@@ -141,23 +142,12 @@ class Game:
                 df=pd.DataFrame(data1,columns=['left','right','up','down','distance','chosen'])
                 #print(df)
                 df.to_csv('train_data/test0.csv',mode='w' ,index=False)
-        ax=[]
-        ax.append(data[0])
-        a2=[]
-        a2.append(data[1])
-        a3=[]
-        a3.append(data[2])
-        a4=[]
-        a4.append(data[3])
-        a5=[]
-        a5.append(data[4])
-         
         data2={
-            'left':ax,
-            'right':a2,
-            'up':a3,
-            'down':a4,
-            'distance':a5,
+            'left':[data[0]],
+            'right':[data[1]] ,
+            'up':[data[2]] ,
+            'down':[data[3]],
+            'distance':[data[4]],
             }
         return data2 
 
@@ -181,7 +171,7 @@ class Game:
         if(self.x>22 or self.y>29 or self.x==0 or self.y==0):
             self.done=True
         #head not touching body
-        for i in range(0,self.TailSize):
+        for i in range(1,len(self.historyX)):
            # print(self.historyX[i]," ",self.x," ",self.historyY[i]," ",self.y)
             if (self.historyX[i]==self.x and self.historyY[i]==self.y):
                 self.done=True
@@ -233,10 +223,10 @@ class Game:
             self.left=True
             self.right=False
         if val==1:
-                self.up=False
-                self.down=False
-                self.left=False
-                self.right=True
+            self.up=False
+            self.down=False
+            self.left=False
+            self.right=True
         return 
     
     def draw(self,screen):
