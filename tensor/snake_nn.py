@@ -19,7 +19,7 @@ def train_input(features,labels,batch_size): #turns training data into tensor ob
 
 def eval_input(features,labels,batch_size):
     features=dict(features)
-    if label is None:
+    if labels is None:
         inputs=features
     else:
         inputs=(features,labels)
@@ -34,7 +34,8 @@ def eval_input(features,labels,batch_size):
 def main(argv):
     #fetch training data
     inputs,outs=load_data()
-        
+
+    test_inputs,test_outs=load_data("train.csv")    
     #features
     features=[]
     for key in inputs.keys():
@@ -42,14 +43,16 @@ def main(argv):
         features.append(tf.feature_column.numeric_column(key=key))
    # print(features)  
     
-    model=tf.estimator.DNNClassifier(feature_columns=features,model_dir="model1",hidden_units=[25],n_classes=4)
+    model=tf.estimator.DNNClassifier(feature_columns=features,model_dir="snake_nn",hidden_units=[25],n_classes=4)
     
     model.train(input_fn=lambda:train_input(inputs,outs,100),steps=100000)
     
-   #how would i evaluate this mode? hummmmmm....
    #next step is to test my model
-    #see u in the next file lol
+    eval_result=model.evaluate( input_fn=lambda:eval_input( test_inputs,test_outs,100))
+
+    print('\nTest accuracy: {accuracy:0.3f}\n'.format(**eval_result))
      
+    #see u in the next file lol
     
 if __name__=='__main__':
     tf.app.run(main)

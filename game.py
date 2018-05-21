@@ -50,7 +50,7 @@ class Game:
            # print(key)
             features.append(tf.feature_column.numeric_column(key=key))
        # print(features) 
-        model=tf.estimator.DNNClassifier(feature_columns=features,model_dir="tensor/model1",hidden_units=[25],n_classes=4)
+        model=tf.estimator.DNNClassifier(feature_columns=features,model_dir="tensor/snake_nn",hidden_units=[25],n_classes=4)
 
         return model;
         
@@ -209,7 +209,7 @@ class Game:
         return dataset
     
     
-    def botmode(self,inputs):
+    def nn_mode(self,inputs):
         predictions=self.model.predict(input_fn=lambda:self.eval_input(inputs,labels=None,batch_size=100))         
         val=-1
         for pred in predictions:
@@ -247,7 +247,7 @@ class Game:
             if self.player:
                 self.write_data()
             else:
-                self.botmode(self.write_data())        
+                self.nn_mode(self.write_data())        
         sumx=0
         sumy=0
         for y in range(0,self.map.get_H()):
