@@ -19,17 +19,14 @@ class Game:
         self.next='Introduction'    
         self.score=0;        
         #creating map
-        self.map=Map()
-        self.historyX=[12,12]
-        self.historyY=[11,10]
+        self.map=Map() #I like having the back end to be 0 and 1 for the GUI as it will make it easier to analyse the data
+        self.historyX=[12,12] 
+        self.historyY=[11,10] 
         self.TailSize=2
         self.x=12
         self.y=12 
-        self.up=False
-        self.down=False
-        self.left=False
-        self.right=True
-       #fruit logic
+        self.direction=0 #0=left 1=right 2=up 3=down
+        self.speed=5 #speed of game 5 for AI is good and for player 10 is good  
         self.fruit=sc.image.load('fruit.png')
         self.fruit=sc.transform.scale(self.fruit,(20,20))
         self.fruitX=random.randint(1,22)
@@ -37,6 +34,7 @@ class Game:
         self.count=0
         #adding sound
         self.sound=sc.mixer.Sound("apple1.wav")
+        #chooses between the sound and bot mode
         self.player=False
         
         if self.player is False:
@@ -57,55 +55,41 @@ class Game:
     def get_event(self,event):
         if event.type==sc.KEYDOWN and self.player:
             if event.key==sc.K_UP:
-                self.up=True
-                self.down=False
-                self.left=False
-                self.right=False
+                self.direction=2
             if event.key==sc.K_DOWN:
-                self.up=False
-                self.down=True
-                self.left=False
-                self.right=False
+                self.direction=3
             if event.key==sc.K_LEFT:
-                self.up=False
-                self.down=False
-                self.left=True
-                self.right=False
+                self.direction=0
             if event.key==sc.K_RIGHT:
-                self.up=False
-                self.down=False
-                self.left=False
-                self.right=True
+                self.direction=1
             if event.key==sc.K_SPACE:
                 self.done=True
-            if event.key==sc.K_p:
+            if event.key==sc.K_p:#for debugging purposes
                 time.sleep(10)
         return
-    def write_data(self):
+    def write_data(self): #this is basically the eyes of the snake and how it will view it's surrondings 
         data=[]
-        #checking left side of snake
-        tail_col=self.obs_tail() #checks for tail collision
-        if(self.map.get_Value(self.x-1,self.y)==1 or tail_col[0] ):#  self.historyX[1]==self.x-1):
+        #checking left side of snake 
+        tail_col=self.obs_tail() #checks for tail collision and returns if it found any, very efficient 
+        if(self.map.get_Value(self.x-1,self.y)==1 or tail_col[0] ):
             data.append(1) #1==yes there is a obstacle
         else:
             data.append(0)#0==no there is no obstacle
         #checking right side
-        if(self.map.get_Value(self.x+1,self.y)==1 or tail_col[1] ): # self.historyX[1]==self.x+1):
+        if(self.map.get_Value(self.x+1,self.y)==1 or tail_col[1] ):
             data.append(1)
         else:
             data.append(0) 
         #checking up
-        if(self.map.get_Value(self.x,self.y-1)==1 or tail_col[2] ):  # self.historyY[1]==self.y-1):
+        if(self.map.get_Value(self.x,self.y-1)==1 or tail_col[2] ): 
             data.append(1)
         else:
             data.append(0)
         #checking down
-        if(self.map.get_Value(self.x,self.y+1)==1 or tail_col[3] ):    # self.historyY[1]==self.y+1):
+        if(self.map.get_Value(self.x,self.y+1)==1 or tail_col[3] ):
             data.append(1)
         else:
             data.append(0)
-        #distance between head and apple
-       # data.append(round(math.sqrt( math.pow(self.fruitX-self.x,2)  + math.pow((self.fruitY-self.y),2)),3) )  
         #orientation of apple to head, since using distance did not work so well
         #e.g 
         #       |    a
@@ -118,20 +102,13 @@ class Game:
         #a is apple
         data.append(round(math.atan2(self.fruitY-self.y,self.fruitX-self.x),3) )
         
-        #direction pick 0=left 1=right 2=up 3=down
-        if self.left:
-            data.append(0)
-        elif self.right:
-            data.append(1)
-        elif self.up:
-            data.append(2)
-        else:
-            data.append(3)
+        #direction being added 0=left 1=right 2=up 3=down
+        data.append(self.direction)
 #        print("[left,right,up,down]")
         print("left="+str(data[0])+" right="+str(data[1])+" up="+str(data[2])+" down="+str(data[3])+" orientation="+str(data[4])+" chosen="+str(data[5])) 
       
         if self.player:
-            data1=[]
+            data1=[] #to train the snake nn
             data1.append(data)
             file_path=Path("train_data/test0.csv")
             if file_path.exists():
@@ -142,14 +119,17 @@ class Game:
                 df=pd.DataFrame(data1,columns=['left','right','up','down','distance','chosen'])
                 #print(df)
                 df.to_csv('train_data/test0.csv',mode='w' ,index=False)
-        data2={
+      
+        else:
+            data2={
             'left':[data[0]],
             'right':[data[1]] ,
             'up':[data[2]] ,
             'down':[data[3]],
             'distance':[data[4]],
-            }
-        return data2 
+                }
+            return data2 
+        return 0
 
     
     def obs_tail(self):
@@ -169,11 +149,14 @@ class Game:
     def update(self,screen,dt):
         #wall boundaries
         if(self.x>22 or self.y>29 or self.x==0 or self.y==0):
+            print("death bcs of wall boundary")
             self.done=True
         #head not touching body
         for i in range(1,len(self.historyX)):
+
            # print(self.historyX[i]," ",self.x," ",self.historyY[i]," ",self.y)
             if (self.historyX[i]==self.x and self.historyY[i]==self.y):
+                print("death bcs it touch body")
                 self.done=True
         
         self.draw(screen)
@@ -207,87 +190,19 @@ class Game:
             print(class_id)
             val=int(class_id)
             print(pred['probabilities'][class_id])
-        if val==2:
-            self.up=True
-            self.down=False
-            self.left=False
-            self.right=False
-        if val==3:
-            self.up=False
-            self.down=True
-            self.left=False
-            self.right=False
-        if val==0:
-            self.up=False
-            self.down=False
-            self.left=True
-            self.right=False
-        if val==1:
-            self.up=False
-            self.down=False
-            self.left=False
-            self.right=True
+        self.direction=val
         return 
-    
-    def draw(self,screen):
-        screen.fill((0,0,0))
-        #sc.draw.rect(screen,(128,128,128),sc.Rect(self.x-5,self.y-5,20,20) )  
-        #DRAWING MAP
-        if(self.count==10):
-            if self.player:
-                self.write_data()
-            else:
-                self.nn_mode(self.write_data())        
-        sumx=0
-        sumy=0
-        for y in range(0,self.map.get_H()):
-            for x in range(0,self.map.get_W()):
-                if(self.map.get_Value(x,y)==1): 
-                    sc.draw.rect(screen,(128,128,128),sc.Rect(x+sumx,y+sumy,20,20) )
-                else:
-                    sc.draw.rect(screen,(1,166,17),sc.Rect(x+sumx,y+sumy,20,20))
-                if (x==self.fruitX and y==self.fruitY):
-                    screen.blit(self.fruit,(x+sumx,y+sumy))
-                   # sc.draw.rect(screen,(128,128,128),sc.Rect(x+sumx,y+sumy,20,20) )
-                    #print(x+sumx)
-                    #print(y+sumy)    
-                if (x==self.x and self.y==y):
-                   # screen.blit(self.head,(x+sumx,y+sumy))   
-                    sc.draw.rect(screen,(255,255,255),sc.Rect(x+sumx,y+sumy,20,20) )
-                   # print("head x=",(x+sumx)," y=" ,(y+sumy),"\n")  
-                    if (len(self.historyX)>self.TailSize and self.count==10 ):
-#                        print("x+sumx=",x+sumx," x=",x," sumx=" ,sumx)
- #                       print("x=(x+sumx)%20",(x+sumx)%20)
-  #                      print("y+sumy=",y+sumy," y=",y," sumy=",sumy)        
-                        self.historyX.insert(0,x)
-                        self.historyY.insert(0,y)
-                      #  for z in self.historyX:
-                    #        print(z,end=" ")
-                     #   print("DONE\n") 
-                        self.historyX.pop() 
-                        self.historyY.pop() 
-                    elif (self.count==10):
-                         self.historyX.insert(0,x)
-                         self.historyY.insert(0,y)
-                
-                sumx+=20
-            sumx=0
-            sumy+=20
-        
-        for i in range(0,self.TailSize):
-            sc.draw.rect(screen,(255,255,255),sc.Rect(self.historyX[i]+20*(self.historyX[i] ),self.historyY[i]+20*(self.historyY[i]),20,20))
-             
+    def not_in_snake(self):
         if (self.fruitX==self.x and self.fruitY==self.y):
             self.fruitX=random.randint(1,22)
             self.fruitY=random.randint(1,29)
             inbody=True
-            count=0;
-#            print("************************")
+            print("************************")
             #making sure fruit does not land in body            
             while(inbody and self.TailSize!=0):
-                for z1 in  range(0,self.TailSize):
+               # for z1 in  range(0,self.TailSize):
                     #print(self.historyX[z1]," ",self.historyY[z1]%20," ",self.fruitX," ",self.fruitY)
-                    if (self.historyX[z1]==self.fruitX and self.historyY[z1]==self.fruitY):
+                    if (self.fruitX  in  self.historyX and self.fruitY in self.historyY):
                         self.fruitX=random.randint(1,22)
                         self.fruitY=random.randint(1,29)
                         inbody=True
@@ -301,19 +216,61 @@ class Game:
             self.sound.play()
             self.TailSize+=1
         
+        return
+
+ 
+    def draw(self,screen):
+        screen.fill((0,0,0))
+        #sc.draw.rect(screen,(128,128,128),sc.Rect(self.x-5,self.y-5,20,20) )  
+        #DRAWING MAP
+        if(self.count==self.speed):
+            if self.player:
+                self.write_data()
+            else:
+                self.nn_mode(self.write_data())        
+        sumx=0
+        sumy=0
         
-        #screen.blit(self.head,(self.x,self.y))
-        #screen.blit(self.body,(self.x1,self.y1))
-        if (self.up and self.count==10):
+        for y in range(0,self.map.get_H()):
+            for x in range(0,self.map.get_W()):
+                if(self.map.get_Value(x,y)==1): 
+                    sc.draw.rect(screen,(128,128,128),sc.Rect(x+sumx,y+sumy,20,20) )
+                else:
+                    sc.draw.rect(screen,(1,166,17),sc.Rect(x+sumx,y+sumy,20,20))
+                if (x==self.fruitX and y==self.fruitY):
+                    screen.blit(self.fruit,(x+sumx,y+sumy))
+                if (x==self.x and self.y==y):
+                    sc.draw.rect(screen,(255,255,255),sc.Rect(x+sumx,y+sumy,20,20) )
+                    if (len(self.historyX)>self.TailSize and self.count==self.speed ):
+                        self.historyX.insert(0,x)
+                        self.historyY.insert(0,y)
+                        
+                        self.historyX.pop() 
+                        self.historyY.pop() 
+                    elif (self.count==self.speed):
+                         self.historyX.insert(0,x)
+                         self.historyY.insert(0,y)
+                
+                sumx+=20
+            sumx=0
+            sumy+=20
+        
+        for i in range(0,self.TailSize):
+            sc.draw.rect(screen,(255,255,255),sc.Rect(self.historyX[i]+20*(self.historyX[i] ),self.historyY[i]+20*(self.historyY[i]),20,20))
+             
+        
+        self.not_in_snake() 
+
+        if (self.direction==2 and self.count==self.speed):
             self.y-=1
             self.count=0
-        elif (self.down and self.count==10):
+        elif (self.direction==3 and self.count==self.speed):
             self.y+=1
             self.count=0
-        elif (self.left and self.count==10):
+        elif (self.direction==0 and self.count==self.speed):
             self.x-=1
             self.count=0
-        elif (self.right and self.count==10):
+        elif (self.direction==1 and self.count==self.speed):
             self.x+=1
             self.count=0
         else:
@@ -331,10 +288,7 @@ class Game:
         self.TailSize=0
         self.x=1
         self.y=1 
-        self.up=False
-        self.down=False
-        self.left=False
-        self.right=True
+        self.direction=1
         self.fruitX=random.randint(1,22)
         self.fruitY=random.randint(1,29)
         self.count=0
