@@ -6,8 +6,8 @@ import math
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from states import States
-from game_map import Map 
+from gui.states import States
+from gui.game_map import Map 
 
 class Game:
     def __init__(self):
@@ -27,14 +27,14 @@ class Game:
         self.y=12 
         self.direction=0 #0=left 1=right 2=up 3=down
         self.speed=5 #speed of game 5 for AI is good and for player 10 is good  
-        self.fruit=sc.image.load('fruit.png')
+        self.fruit=sc.image.load('media/fruit1.png')
         self.fruit=sc.transform.scale(self.fruit,(20,20))
         self.fruitX=random.randint(1,22)
         self.fruitY=random.randint(1,29)
         self.count=0
         #adding sound
-        self.sound=sc.mixer.Sound("apple1.wav")
-        #chooses between the sound and bot mode
+        self.sound=sc.mixer.Sound("media/apple1.wav")
+        #chooses between the player or bot mode
         self.player=False
         
         if self.player is False:
@@ -217,7 +217,9 @@ class Game:
             self.TailSize+=1
         
         return
-
+    def draw_tail(self,screen):
+        for i in range(0,self.TailSize):
+            sc.draw.rect(screen,(255,255,255),sc.Rect(self.historyX[i]+20*(self.historyX[i] ),self.historyY[i]+20*(self.historyY[i]),20,20))
  
     def draw(self,screen):
         screen.fill((0,0,0))
@@ -255,10 +257,8 @@ class Game:
             sumx=0
             sumy+=20
         
-        for i in range(0,self.TailSize):
-            sc.draw.rect(screen,(255,255,255),sc.Rect(self.historyX[i]+20*(self.historyX[i] ),self.historyY[i]+20*(self.historyY[i]),20,20))
              
-        
+        self.draw_tail(screen)
         self.not_in_snake() 
 
         if (self.direction==2 and self.count==self.speed):

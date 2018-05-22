@@ -1,5 +1,5 @@
 import pygame as sc
-from states import States
+from gui.states import States
 
 class Intro:
     def __init__(self):
