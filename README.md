@@ -30,8 +30,8 @@
         o
         o
 
-## Example
-    Please refer to the section projects in aaguirre.io
+## Want to see it run?
+* [click here](http://aaguirre.io/) - Scroll to the projects section
 
     
 
