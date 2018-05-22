@@ -31,7 +31,7 @@
         o
 
 ## Want to see it run?
-* [click here](aaguirre.io) - Scroll to the projects section
+* [click here](http://aaguirre.io/) - Scroll to the projects section
 
     
 
