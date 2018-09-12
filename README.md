@@ -30,8 +30,9 @@
         o
         o
 
-## Want to see it run?
-* [click here](http://aaguirre.io/) - Scroll to the projects section
+## Example gif
+![Alt Text](https://github.com/Armando024/old_aaguirre/blob/master/static/snake.gif)
+
 
     
 
