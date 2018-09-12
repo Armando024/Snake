@@ -32,6 +32,8 @@
 
 ## Example gif
 ![Alt Text](https://github.com/Armando024/old_aaguirre/blob/master/static/snake.gif)
+<img src="https://github.com/Armando024/old_aaguirre/blob/master/static/snake.gif" width="40" height="40" />
+
 
 
     
