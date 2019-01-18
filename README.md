@@ -31,7 +31,7 @@
         o
 
 ## Example gif
-<img src="https://github.com/Armando024/old_aaguirre/blob/master/static/snake.gif" width="432" height="449" />
+<img src="https://github.com/Armando024/old_aaguirre/blob/master/static/snake.gif" width="341.23" height="481.7"  />
 
 
 
